@@ -1,10 +1,13 @@
+from .location_requests import get_single_location
+from .customer_requests import get_single_customer
+
 ANIMALS = [
     {
         "id": 1,
         "name": "Snickers",
         "species": "Dog",
         "locationId": 1,
-        "customerId": 4,
+        "customerId": 1,
         "status": "Admitted"
     },
     {
@@ -12,18 +15,19 @@ ANIMALS = [
         "name": "Roman",
         "species": "Dog",
         "locationId": 1,
-        "customerId": 2,
+        "customerId": 1,
         "status": "Admitted"
     },
     {
         "id": 3,
         "name": "Blue",
         "species": "Cat",
-        "locationId": 2,
+        "locationId": 1,
         "customerId": 1,
         "status": "Admitted"
     }
 ]
+
 
 
 def get_all_animals():
@@ -34,8 +38,7 @@ def get_single_animal(id):
     '''this gets single animal'''
     # Variable to hold the found animal, if it exists
     requested_animal = None
-
-
+    
     # Iterate the ANIMALS list above. Very similar to the
     # for..of loops you used in JavaScript.
     for animal in ANIMALS:
@@ -43,8 +46,13 @@ def get_single_animal(id):
         # instead of the dot notation that JavaScript used.
         if animal["id"] == id:
             requested_animal = animal
-
-        return requested_animal
+            matching_location = get_single_location(requested_animal["locationId"])
+            requested_animal["location"] = matching_location
+            matching_customer = get_single_customer(requested_animal["customerId"])
+            requested_animal["customer"] = matching_customer
+            requested_animal.pop("customerId")
+            requested_animal.pop("locationId")
+    return requested_animal
 def create_animal(animal):
     '''creates new animal'''
     # Get the id value of the last animal in the list
