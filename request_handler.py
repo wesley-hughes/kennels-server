@@ -6,9 +6,28 @@ from views import get_all_animals, get_single_animal, create_animal, delete_anim
 # For now, think of a class as a container for functions that
 # work together for a common purpose. In this case, that
 # common purpose is to respond to HTTP requests from a client.
+method_mapper= {
+    "animals" : {
+        "all" : get_all_animals,
+        "single" : get_single_animal
+        },
+    "locations" : {
+        "all" : get_all_locations,
+        "single" : get_single_location
+        },
+    "employees" : {
+        "all" : get_all_employees,
+        "single" : get_single_employee
+        },
+    "customers" : {
+        "all" : get_all_customers,
+        "single" : get_single_customer
+        }
+}
 class HandleRequests(BaseHTTPRequestHandler):
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
     """
+
     def parse_url(self, path):
         '''docstring'''
         # Just like splitting a string in JavaScript. If the
@@ -30,46 +49,26 @@ class HandleRequests(BaseHTTPRequestHandler):
             pass  # Request had trailing slash: /animals/
 
         return (resource, id)  # This is a tuple
-    # This is a Docstring it should be at the beginning of all classes and functions
-    # It gives a description of the class or function
 
-    # Here's a class function
+    def get_all_or_single(self, resource, id):
+        if id is not None:
+            response = method_mapper[resource]["single"](id)
 
-    # Here's a method on the class that overrides the parent's method.
-    # It handles any GET request.
+            if response is not None:
+                self._set_headers(200)
+            else:
+                self._set_headers(404)
+                response = ''
+        else:
+            self._set_headers(200)
+            response = method_mapper[resource]["all"]()
+
+        return response
     def do_GET(self):
-        '''docstring'''
-        self._set_headers(200)
-        response = {}  # Default response
-
-        # Parse the URL and capture the tuple that is returned
+        response = None
         (resource, id) = self.parse_url(self.path)
-
-        if resource == "animals":
-            if id is not None:
-                response = get_single_animal(id)
-
-            else:
-                response = get_all_animals()
-
-        if resource == "locations":
-            if id is not None:
-                response = get_single_location(id)
-            else:
-                response = get_all_locations()
-        if resource == "employees":
-            if id is not None:
-                response = get_single_employee(id)
-            else:
-                response = get_all_employees()
-        if resource == "customers":
-            if id is not None:
-                response = get_single_customer(id)
-            else:
-                response = get_all_customers()
-
+        response = self.get_all_or_single(resource, id)
         self.wfile.write(json.dumps(response).encode())
-
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
@@ -77,21 +76,17 @@ class HandleRequests(BaseHTTPRequestHandler):
         self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-
-        # Convert JSON string to a Python dictionary
         post_body = json.loads(post_body)
-
-        # Parse the URL
         (resource, id) = self.parse_url(self.path)
-
-        # Initialize new animal
         new_animal = None
-
-        # Add a new animal to the list. Don't worry about
-        # the orange squiggle, you'll define the create_animal
-        # function next.
         if resource == "animals":
             new_animal = create_animal(post_body)
+            if "name" in post_body and "species" in post_body:
+                self._set_headers(201)
+                new_animal = new_animal(post_body)
+            else:
+                self._set_headers(400)
+                new_animal = {"message": f'{"name is required" if "name" not in post_body else ""} {"species is required" if "species" not in post_body else ""}'}
 
         # Encode the new animal and send in response
         self.wfile.write(json.dumps(new_animal).encode())
@@ -164,21 +159,22 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.end_headers()
     def do_DELETE(self):
         '''docstring'''
-    # Set a 204 response code
-        self._set_headers(204)
-
-        # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
         # Delete a single animal from the list
         if resource == "animals":
+            self._set_headers(204)
             delete_animal(id)
         if resource == "locations":
+            self._set_headers(204)
             delete_location(id)
         if resource == "employees":
+            self._set_headers(204)
             delete_employee(id)
         if resource == "customers":
-            delete_customer(id)
+            self._set_headers(405)
+            response = {"message": f'{"to delete customer, please contact admin"}'}
+            self.wfile.write(json.dumps(response).encode())
 
         # Encode the new animal and send in response
         self.wfile.write("".encode())
