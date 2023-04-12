@@ -95,26 +95,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
-
-        # Parse the URL
         (resource, id) = self.parse_url(self.path)
-
-        # Delete a single animal from the list
-        if resource == "animals":
-            update_animal(id, post_body)
-
-        # Encode the new animal and send in response
-        self.wfile.write("".encode())
-
-        if resource == "locations":
-            update_location(id, post_body)
-        self.wfile.write("".encode())
-        if resource == "customers":
-            update_customer(id, post_body)
-        self.wfile.write("".encode())
-        if resource == "employees":
-            update_employee(id, post_body)
-
+        update(resource, post_body, id)
         self.wfile.write("".encode())
 
     def _set_headers(self, status):
@@ -143,7 +125,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         '''docstring'''
         (resource, id) = self.parse_url(self.path)
         self._set_headers(204)
-        delete(resource)
+        delete(resource, id)
         # Encode the new animal and send in response
         self.wfile.write("".encode())
 

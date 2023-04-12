@@ -74,7 +74,7 @@ def create(resources, resource):
     return resource
 
 
-def update(resources, new_resource):
+def update(resources, new_resource, id):
     """For PUT requests to a single resource"""
     for index, resource in enumerate(DATABASE[resources]):
         if resource["id"] == id:
@@ -82,7 +82,7 @@ def update(resources, new_resource):
             break
 
 
-def delete(resources):
+def delete(resources, id):
     """For DELETE requests to a single resource"""
     resources_index = -1
     for index, resource in enumerate(DATABASE[resources]):
