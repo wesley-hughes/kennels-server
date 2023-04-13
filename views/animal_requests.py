@@ -1,13 +1,10 @@
-from .location_requests import get_single_location
-from .customer_requests import get_single_customer
-
 ANIMALS = [
     {
         "id": 1,
         "name": "Snickers",
         "species": "Dog",
         "locationId": 1,
-        "customerId": 1,
+        "customerId": 4,
         "status": "Admitted"
     },
     {
@@ -15,30 +12,28 @@ ANIMALS = [
         "name": "Roman",
         "species": "Dog",
         "locationId": 1,
-        "customerId": 1,
+        "customerId": 2,
         "status": "Admitted"
     },
     {
         "id": 3,
         "name": "Blue",
         "species": "Cat",
-        "locationId": 1,
+        "locationId": 2,
         "customerId": 1,
         "status": "Admitted"
     }
 ]
 
 
-
 def get_all_animals():
-    '''this gets all the animals'''
     return ANIMALS
+
 # Function with a single parameter
 def get_single_animal(id):
-    '''this gets single animal'''
     # Variable to hold the found animal, if it exists
     requested_animal = None
-    
+
     # Iterate the ANIMALS list above. Very similar to the
     # for..of loops you used in JavaScript.
     for animal in ANIMALS:
@@ -46,15 +41,9 @@ def get_single_animal(id):
         # instead of the dot notation that JavaScript used.
         if animal["id"] == id:
             requested_animal = animal
-            matching_location = get_single_location(requested_animal["locationId"])
-            requested_animal["location"] = matching_location
-            matching_customer = get_single_customer(requested_animal["customerId"])
-            requested_animal["customer"] = matching_customer
-            requested_animal.pop("customerId")
-            requested_animal.pop("locationId")
-    return requested_animal
+            return requested_animal
+
 def create_animal(animal):
-    '''creates new animal'''
     # Get the id value of the last animal in the list
     max_id = ANIMALS[-1]["id"]
 
@@ -69,8 +58,8 @@ def create_animal(animal):
 
     # Return the dictionary with `id` property added
     return animal
+
 def delete_animal(id):
-    '''docstring'''
     # Initial -1 value for animal index, in case one isn't found
     animal_index = -1
 
@@ -84,8 +73,8 @@ def delete_animal(id):
     # If the animal was found, use pop(int) to remove it from list
     if animal_index >= 0:
         ANIMALS.pop(animal_index)
+        
 def update_animal(id, new_animal):
-    '''docstring'''
     # Iterate the ANIMALS list, but use enumerate() so that
     # you can access the index value of each item.
     for index, animal in enumerate(ANIMALS):
