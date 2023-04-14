@@ -1,48 +1,32 @@
-EMPLOYEES = [
-    {
-      "id": 1,
-      "name": "James Baxter"
-    },
-    {
-      "id": 2,
-      "name": "Raquel Roberts"
-    },
-    {
-      "name": "Johnny James",
-      "id": 3
-    }
+employees = [
+    {"id": 1, "name": "James Baxter"},
+    {"id": 2, "name": "Raquel Roberts"},
+    {"id": 3, "name": "Johnny James"}
 ]
 
 def get_all_employees():
-    return EMPLOYEES
+    return employees
 
 def get_single_employee(id):
-    requested_employee = None
-
-    for employee in EMPLOYEES:
+    for employee in employees:
         if employee["id"] == id:
-            requested_employee = employee
-            return requested_employee
+            return employee
+    return None
 
 def create_employee(employee):
-    max_id = EMPLOYEES[-1]["id"]
-    new_id = max_id + 1
-    employee["id"] = new_id
-    EMPLOYEES.append(employee)
-    return employee
-  
+    max_id = max(employees, key=lambda x: x["id"])["id"]
+    new_employee = {"id": max_id + 1, "name": employee["name"]}
+    employees.append(new_employee)
+    return new_employee
+
 def delete_employee(id):
-    employee_index = -1
-
-    for index, employee in enumerate(EMPLOYEES):
+    for index, employee in enumerate(employees):
         if employee["id"] == id:
-            employee_index = index
+            employees.pop(index)
+            break
 
-    if employee_index >= 0:
-        EMPLOYEES.pop(employee_index)
-        
 def update_employee(id, new_employee):
-    for index, employee in enumerate(EMPLOYEES):
+    for index, employee in enumerate(employees):
         if employee["id"] == id:
-            EMPLOYEES[index] = new_employee
+            employees[index]["name"] = new_employee["name"]
             break
