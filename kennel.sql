@@ -77,3 +77,42 @@ SELECT
     l.address
 FROM location l
 WHERE l.id = 2
+
+SELECT
+    e.id,
+    e.name
+FROM employee e
+WHERE e.id = 2
+
+SELECT
+    c.id,
+    c.name
+FROM customer c
+WHERE c.id = 2
+
+SELECT
+    c.id,
+    c.name,
+    c.email
+FROM customer c
+WHERE c.email = "jenna@solis.com";
+
+SELECT
+    a.id,
+    a.name
+FROM animal a
+WHERE a.location_id = 2;
+
+SELECT
+    a.id,
+    a.name
+FROM animal a
+WHERE a.status = "Kennel";
+
+SELECT
+    e.id,
+    e.name
+FROM employee e
+WHERE e.location_id = 1;
+
+INSERT INTO `Animal` VALUES (null, "Daps", "Kennel", "Boxer", 2, 2);
