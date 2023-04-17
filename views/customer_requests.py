@@ -26,7 +26,10 @@ def get_all_customers():
         db_cursor.execute("""
         SELECT
             c.id,
-            c.name
+            c.name,
+            c.email,
+            c.address,
+            c.password
         FROM customer c
         """)
         customers = []
