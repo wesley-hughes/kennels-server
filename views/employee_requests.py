@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Employee
+from models import Employee, Location
 EMPLOYEES = [
     {"id": 1, "name": "James Baxter"},
     {"id": 2, "name": "Raquel Roberts"},
@@ -14,13 +14,21 @@ def get_all_employees():
         db_cursor.execute("""
         SELECT
             e.id,
-            e.name
-        FROM employee e
+            e.name,
+            e.location_id,
+            l.name location_name,
+            l.address location_address
+        FROM Employee e
+        JOIN Location l
+            ON l.id = e.location_id
         """)
         employees = []
         dataset = db_cursor.fetchall()
         for row in dataset:
-            employee = Employee(row['id'], row['name'])
+            employee = Employee(row['id'], row['name'], row['location_id'])
+            location = Location(
+            row['location_id'], row['location_name'], row['location_address'])
+            employee.location = location.__dict__
             employees.append(employee.__dict__)
     return employees
 
@@ -37,7 +45,7 @@ def get_single_employee(id):
         WHERE e.id = ?
         """, ( id, ))
         data = db_cursor.fetchone()
-        employee = Employee(data['id'], data['name'])
+        employee = Employee(data['id'], data['name'], data['location_id'])
         return employee.__dict__
     
 def get_employees_by_location(location_id):

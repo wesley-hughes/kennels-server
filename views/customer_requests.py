@@ -27,15 +27,15 @@ def get_all_customers():
         SELECT
             c.id,
             c.name,
-            c.email,
             c.address,
+            c.email,
             c.password
         FROM customer c
         """)
         customers = []
         dataset = db_cursor.fetchall()
         for row in dataset:
-            customer = Customer(row['id'], row['name'], row['email'], row['address'], row['password'])
+            customer = Customer(row['id'], row['name'], row['address'], row['email'], row['password'])
             customers.append(customer.__dict__)
     return customers
 
@@ -52,7 +52,7 @@ def get_single_customer(id):
         WHERE c.id = ?
         """, ( id, ))
         data = db_cursor.fetchone()
-        customer = Customer(data['id'], data['name'], data['email'], data['address'], data['password'])
+        customer = Customer(data['id'], data['name'], data['address'], data['email'], data['password'])
         return customer.__dict__
 
 def get_customers_by_email(email):
