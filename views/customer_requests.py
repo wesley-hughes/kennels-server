@@ -20,6 +20,7 @@ CUSTOMERS = [
 ]
 
 def get_all_customers():
+    """Return a list of all customers"""
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -39,8 +40,8 @@ def get_all_customers():
             customers.append(customer.__dict__)
     return customers
 
-
 def get_single_customer(id):
+    """Return a single customer by id"""
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -56,12 +57,10 @@ def get_single_customer(id):
         return customer.__dict__
 
 def get_customers_by_email(email):
-
+    """Return a list of customers by email"""
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
-
-        # Write the SQL query to get the information you want
         db_cursor.execute("""
         SELECT
             c.id,
@@ -72,17 +71,15 @@ def get_customers_by_email(email):
         from Customer c
         WHERE c.email = ?
         """, ( email, ))
-
         customers = []
         dataset = db_cursor.fetchall()
-
         for row in dataset:
             customer = Customer(row['id'], row['name'], row['address'], row['email'] , row['password'])
             customers.append(customer.__dict__)
-
     return customers
 
 def create_customer(customer):
+    """Create a new customer"""
     max_id = CUSTOMERS[-1]["id"]
     new_id = max_id + 1
     customer["id"] = new_id
@@ -90,16 +87,16 @@ def create_customer(customer):
     return customer
 
 def delete_customer(id):
+    """Delete a customer by id"""
     customer_index = -1
-
     for index, customer in enumerate(CUSTOMERS):
         if customer["id"] == id:
             customer_index = index
-
     if customer_index >= 0:
         CUSTOMERS.pop(customer_index)
-        
+
 def update_customer(id, new_customer):
+    """Update a customer by id"""
     for index, customer in enumerate(CUSTOMERS):
         if customer["id"] == id:
             CUSTOMERS[index] = new_customer

@@ -133,12 +133,6 @@ JOIN Location l
 JOIN Customer c
     ON c.id = a.customer_id;
 
-FROM Animal a
-JOIN Location l
-    ON l.id = a.location_id
-JOIN Customer c
-    ON c.id = a.customer_id;
-
 SELECT
     e.id,
     e.name,
@@ -148,3 +142,7 @@ SELECT
 FROM Employee e
 JOIN Location l
     ON l.id = e.location_id;
+
+SELECT * FROM Animal ORDER BY id DESC;
+
+SELECT * FROM Employee ORDER BY id DESC;
