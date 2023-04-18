@@ -1,6 +1,7 @@
 import sqlite3
 import json
 from models import Employee, Location
+
 EMPLOYEES = [
     {"id": 1, "name": "James Baxter"},
     {"id": 2, "name": "Raquel Roberts"},
@@ -8,6 +9,8 @@ EMPLOYEES = [
 ]
 
 def get_all_employees():
+    """Retrieve a list of all employees with their associated location data."""
+
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -34,6 +37,8 @@ def get_all_employees():
 
 
 def get_single_employee(id):
+    """Retrieve the information of a single employee based on their ID."""
+
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -49,6 +54,8 @@ def get_single_employee(id):
         return employee.__dict__
     
 def get_employees_by_location(location_id):
+    """Retrieve a list of all employees at a specified location."""
+
     with sqlite3.connect("./kennel.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
@@ -61,20 +68,37 @@ def get_employees_by_location(location_id):
         where e.location_id = ?
         """, ( location_id, ))
 
-def create_employee(employee):
-    max_id = EMPLOYEES[-1]["id"]
-    new_id = max_id + 1
-    employee["id"] = new_id
-    EMPLOYEES.append(employee)
-    return employee
+def create_employee(new_employee):
+    """Create a new employee in the system."""
+
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        INSERT INTO Employee
+            ( name, address, location_id )
+        VALUES
+            ( ?, ?, ?           );
+        """, (new_employee['name'], new_employee['address'], new_employee['location_id']))
+
+        id = db_cursor.lastrowid
+
+        new_employee['id'] = id
+
+
+    return new_employee
 
 def delete_employee(id):
+    """Delete an employee from the system based on their ID."""
+
     for index, employee in enumerate(EMPLOYEES):
         if employee["id"] == id:
             EMPLOYEES.pop(index)
             break
 
 def update_employee(id, new_employee):
+    """Update the information of an existing employee in the system based on their ID."""
+
     for index, employee in enumerate(EMPLOYEES):
         if employee["id"] == id:
             EMPLOYEES[index]["name"] = new_employee["name"]

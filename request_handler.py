@@ -45,6 +45,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any GET request.
     def do_GET(self):
+        '''docstring'''
         self._set_headers(200)
 
         response = {}
@@ -96,6 +97,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
+        '''docstring'''
         self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
@@ -125,6 +127,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     # A method that handles any PUT request.
     def do_PUT(self):
+        '''docstring'''
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
@@ -146,6 +149,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.wfile.write("".encode())
         
     def do_DELETE(self):
+        '''docstring'''
         # Set a 204 response code
         self._set_headers(204)
 
