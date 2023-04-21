@@ -133,11 +133,7 @@ JOIN Location l
 JOIN Customer c
     ON c.id = a.customer_id;
 
-FROM Animal a
-JOIN Location l
-    ON l.id = a.location_id
-JOIN Customer c
-    ON c.id = a.customer_id;
+
 
 SELECT
     e.id,
@@ -148,3 +144,13 @@ SELECT
 FROM Employee e
 JOIN Location l
     ON l.id = e.location_id;
+
+
+SELECT
+    l.id,
+    l.name name,
+    l.address address,
+    COUNT(*) AS animals
+FROM Location l
+JOIN Animal a ON l.id = a.location_id
+GROUP BY a.location_id

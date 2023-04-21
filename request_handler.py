@@ -3,12 +3,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 from views import (
     get_all_animals,
-    get_animals_by_status,
     get_animals_by_location,
     get_single_animal,
-    create_animal,
     delete_animal,
-    update_animal
+    update_animal,
+    create_animal
 )
 from views import (
     get_all_locations,
@@ -34,6 +33,7 @@ from views import (
     get_customers_by_email
 )
 
+
 class HandleRequests(BaseHTTPRequestHandler):
     # This is a Docstring it should be at the beginning of all classes and functions
     # It gives a description of the class or function
@@ -45,51 +45,43 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any GET request.
     def do_GET(self):
+        response = None
+        (resource, id, query_params) = self.parse_url(self.path)
         self._set_headers(200)
-
-        response = {}
-
-        # Parse URL and store entire tuple in a variable
-        parsed = self.parse_url(self.path)
-
-        # If the path does not include a query parameter, continue with the original if block
-        if '?' not in self.path:
-            (resource, id) = parsed
-
-            if resource == "animals":
-                if id is not None:
-                    response = get_single_animal(id)
-                else:
-                    response = get_all_animals()
-            elif resource == "customers":
-                if id is not None:
-                    response = get_single_customer(id)
-                else:
-                    response = get_all_customers()
-            elif resource == "locations":
-                if id is not None:
-                    response = get_single_location(id)
-                else:
-                    response = get_all_locations()
-            elif resource == "employees":
-                if id is not None:
-                    response = get_single_employee(id)
-                else:
-                    response = get_all_employees()
+        if resource == "animals":
+            if id is not None:
+                response = get_single_animal(id)
             else:
-                (resource, query) = parsed
+                response = get_all_animals(query_params)
+        elif resource == "locations":
+            if id is not None:
+                response = get_single_location(id)
+            else:
+                response = get_all_locations()
+            # elif resource == "customers":
+            #     if id is not None:
+            #         response = get_single_customer(id)
+            #     else:
+            #         response = get_all_customers()
+            # elif resource == "employees":
+            #     if id is not None:
+            #         response = get_single_employee(id)
+            #     else:
+            #         response = get_all_employees()
+        #     else:
+        #         (resource, query) = parsed
 
-            # see if the query dictionary has an email key
-        else:
-            (resource, query) = parsed
-            if query.get('email') and resource == 'customers':
-                response = get_customers_by_email(query['email'][0])
-            elif query.get('location_id') and resource == 'animals':
-                response = get_animals_by_location(query['location_id'][0])
-            elif query.get('location_id') and resource == 'employees':
-                response = get_employees_by_location(query['location_id'][0])
-            elif query.get('status') and resource == 'animals':
-                response = get_animals_by_status(query['status'][0])
+        #     # see if the query dictionary has an email key
+        # else:
+        #     (resource, query) = parsed
+        #     if query.get('email') and resource == 'customers':
+        #         response = get_customers_by_email(query['email'][0])
+        #     elif query.get('location_id') and resource == 'animals':
+        #         response = get_animals_by_location(query['location_id'][0])
+        #     elif query.get('location_id') and resource == 'employees':
+        #         response = get_employees_by_location(query['location_id'][0])
+        #     elif query.get('status') and resource == 'animals':
+        #         response = get_animals_by_status(query['status'][0])
 
         self.wfile.write(json.dumps(response).encode())
 
@@ -104,7 +96,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         post_body = json.loads(post_body)
 
         # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
         # Initialize new resource
         new_resource = None
@@ -122,15 +114,15 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Encode the new resource and send in response
         self.wfile.write(json.dumps(new_resource).encode())
 
-
     # A method that handles any PUT request.
+
     def do_PUT(self):
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
 
         # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
         success = False
 
@@ -144,13 +136,13 @@ class HandleRequests(BaseHTTPRequestHandler):
             self._set_headers(404)
 
         self.wfile.write("".encode())
-        
+
     def do_DELETE(self):
         # Set a 204 response code
         self._set_headers(204)
 
         # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
         # Delete a single animal from the list
         if resource == "animals":
@@ -190,25 +182,27 @@ class HandleRequests(BaseHTTPRequestHandler):
                          'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
-
     # replace the parse_url function in the class
+
     def parse_url(self, path):
-        """Parse the url into the resource and id"""
-        parsed_url = urlparse(path)
-        path_params = parsed_url.path.split('/')  # ['', 'animals', 1]
-        resource = path_params[1]
+        url_components = urlparse(path)
+        path_params = url_components.path.strip("/").split("/")
+        query_params = []
 
-        if parsed_url.query:
-            query = parse_qs(parsed_url.query)
-            return (resource, query)
+        if url_components.query != '':
+            query_params = url_components.query.split("&")
 
-        pk = None
+        resource = path_params[0]
+        id = None
+
         try:
-            pk = int(path_params[2])
-        except (IndexError, ValueError):
-            pass
-        return (resource, pk)
+            id = int(path_params[1])
+        except IndexError:
+            pass  # No route parameter exists: /animals
+        except ValueError:
+            pass  # Request had trailing slash: /animals/
 
+        return (resource, id, query_params)
 
 def main():
     """Starts the server on port 8088 using the HandleRequests class

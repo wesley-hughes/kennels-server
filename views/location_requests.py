@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Location
+from models import Location, Animal
 LOCATIONS = [
     {
       "id": 1,
@@ -35,9 +35,12 @@ def get_all_locations():
         db_cursor.execute("""
         SELECT
             l.id,
-            l.name,
-            l.address
-        FROM location l
+            l.name name,
+            l.address address,
+            COUNT(*) AS animals
+        FROM Location l
+        JOIN Animal a ON l.id = a.location_id
+        GROUP BY a.location_id
         """)
         
         # Fetching all the data returned by the SQL query
@@ -51,6 +54,8 @@ def get_all_locations():
             
             # Creating a Location object for each row of data
             location = Location(row['id'], row['name'], row['address'])
+            location.animals = row['animals'] 
+
             
             # Appending the dictionary representation of the Location object to the list
             locations.append(location.__dict__)
